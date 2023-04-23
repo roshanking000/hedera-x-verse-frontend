@@ -13,7 +13,7 @@ import Navbar from '../common/Navbar'
 import Footer from '../common/Footer'
 
 const StakePage = () => {
-    const { walletData, installedExtensions, connect, disconnect, allowanceNft, allowanceMultipleNft } = useHashConnect();
+    const { walletData, installedExtensions, connect, disconnect, allowanceNft, allowanceMultipleNft, receiveReward } = useHashConnect();
     const [walletId, setWalletId] = useState(null)
 
     const [loadingView, setLoadingView] = useState(false);
@@ -386,6 +386,26 @@ const StakePage = () => {
         setLoadingView(false);
     }
 
+    const onHandleClaimReward = async () => {
+        setLoadingView(true)
+
+        const _res = await getRequest(env.SERVER_URL + "/api/stake/claim_reward?a=", btoa(walletId));
+        if (!_res) {
+            toast.error("Something wrong with server!");
+            setLoadingView(false);
+            return;
+        }
+        if (!_res.result) {
+            toast.error(_res.error);
+            setLoadingView(false);
+            return;
+        }
+
+
+
+        setLoadingView(false)
+    }
+
     return (
         <>
             <Navbar />
@@ -407,21 +427,16 @@ const StakePage = () => {
                         </button>
                     </div>
                     <div className='flex flex-col items-center pt-12 pb-4'>
-                        <div className='w-4/5 text-lg text-white'>
-                            <span>
-                                The X-Verse STAKED <br />
-                                {stakeRatio}%
+                        <div className="w-4/5 flex justify-between mb-1">
+                            <span className="text-2xl font-medium text-white">
+                                The X-Verse STAKED
                             </span>
+                            <span className="text-2xl font-medium text-white">{stakeRatio}%</span>
                         </div>
-                        <div className='w-4/5 h-7 mb-4 bg-[#134C73] rounded-lg mt-3'>
-                            <div className="flex items-center justify-center bg-[#FFDD41] h-7 text-sm text-black text-center leading-none rounded-lg" style={{
+                        <div className="w-4/5 bg-gray-200 rounded-full h-6 bg-gray-700">
+                            <div className="bg-blue-600 h-6 rounded-full" style={{
                                 width: `${stakeRatio}%`,
-                            }}>
-                                {
-                                    stakeRatio >= 4 &&
-                                    `${stakeRatio}%`
-                                }
-                            </div>
+                            }}></div>
                         </div>
                     </div>
                     {
@@ -432,7 +447,7 @@ const StakePage = () => {
                                     <img className='rounded-full mr-2' alt="..." src="https://wallet.hashpack.app/assets/favicon/favicon.ico" />
                                     <p className="text-2xl text-gray-400">{rewardAmount} ℏ</p>
                                 </div>
-                                <button className="inline-flex items-center px-3 py-2 text-xl text-center text-white rounded-lg focus:ring-4 focus:outline-none bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">
+                                <button className="inline-flex items-center px-3 py-2 text-xl text-center text-white rounded-lg focus:ring-4 focus:outline-none bg-blue-600 hover:bg-blue-700 focus:ring-blue-800" onClick={onHandleClaimReward}>
                                     Claim a reward
                                 </button>
                             </div>
